@@ -1,0 +1,24 @@
+{
+  "name": "otus-js-qa-course",
+  "version": "1.0.0",
+  "description": "Создано в рамках курса OTUS JavaScript QA Engineer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vlovygin/otus-qa-js-2023-09.git"
+  },
+  "keywords": [
+    "otus",
+    "qa",
+    "js"
+  ],
+  "author": "Vasiliy Lovygin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vlovygin/otus-qa-js-2023-09/issues"
+  },
+  "homepage": "https://github.com/vlovygin/otus-qa-js-2023-09#readme"
+}
