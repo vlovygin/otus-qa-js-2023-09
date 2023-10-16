@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {},
+	"extensions": {
+		"recommendations": [
+			"eamodio.gitlens",
+			"yzhang.markdown-all-in-one",
+			"firsttris.vscode-jest-runner",
+			"EditorConfig.EditorConfig",
+			"dbaeumer.vscode-eslint",
+			"esbenp.prettier-vscode",
+			"rvest.vs-code-prettier-eslint",
+			"vscode-icons-team.vscode-icons"
+		]
+	}
+}

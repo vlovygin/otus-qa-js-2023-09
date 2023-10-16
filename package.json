@@ -1,24 +1,40 @@
 {
-  "name": "otus-js-qa-course",
-  "version": "1.0.0",
-  "description": "Создано в рамках курса OTUS JavaScript QA Engineer",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/vlovygin/otus-qa-js-2023-09.git"
-  },
-  "keywords": [
-    "otus",
-    "qa",
-    "js"
-  ],
-  "author": "Vasiliy Lovygin",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/vlovygin/otus-qa-js-2023-09/issues"
-  },
-  "homepage": "https://github.com/vlovygin/otus-qa-js-2023-09#readme"
+    "name": "otus-js-qa-course",
+    "version": "1.0.0",
+    "description": "Создано в рамках курса OTUS JavaScript QA Engineer",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "test": "jest",
+        "coverage": "jest --coverage",
+        "lint": "eslint . --ignore-path .gitignore",
+        "lint:fix": "npm run lint -- --fix"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/vlovygin/otus-qa-js-2023-09.git"
+    },
+    "keywords": [
+        "otus",
+        "qa",
+        "js"
+    ],
+    "author": "Vasiliy Lovygin",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/vlovygin/otus-qa-js-2023-09/issues"
+    },
+    "homepage": "https://github.com/vlovygin/otus-qa-js-2023-09#readme",
+    "devDependencies": {
+        "@babel/core": "^7.23.2",
+        "@babel/preset-env": "^7.23.2",
+        "@types/jest": "^29.5.5",
+        "babel-jest": "^29.7.0",
+        "eslint": "^8.51.0",
+        "eslint-config-prettier": "^9.0.0",
+        "eslint-plugin-jest": "^27.4.2",
+        "eslint-plugin-prettier": "^5.0.1",
+        "jest": "^29.7.0",
+        "prettier": "3.0.3"
+    }
 }
