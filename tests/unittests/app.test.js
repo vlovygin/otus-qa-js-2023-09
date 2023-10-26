@@ -57,14 +57,10 @@ describe('unittests for getTotal function', () => {
   })
 
   test('discount not a number', () => {
-    expect(() => getTotal([{ price: 10, quantity: 10 }], true)).toThrow(
-      'Скидка должна быть числом'
-    )
+    expect(() => getTotal([{ price: 10, quantity: 10 }], true)).toThrow('Скидка должна быть числом')
   })
 
   test('negative discount', () => {
-    expect(() => getTotal([{ price: 10, quantity: 10 }], -30)).toThrow(
-      'Процент скидки не может быть отрицательным'
-    )
+    expect(() => getTotal([{ price: 10, quantity: 10 }], -30)).toThrow('Процент скидки не может быть отрицательным')
   })
 })
