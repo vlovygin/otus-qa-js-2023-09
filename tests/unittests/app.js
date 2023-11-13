@@ -4,8 +4,7 @@
  * @returns {boolean}
  */
 
-export const nameIsValid = (name) =>
-  !!name && name.length >= 2 && !name.includes(' ')
+export const nameIsValid = (name) => !!name && name.length >= 2 && !name.includes(' ')
 
 /**
  * Удаление пробелов из строки

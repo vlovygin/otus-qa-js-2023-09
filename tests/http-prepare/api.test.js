@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 function generateCredentials() {
   return {
     username: `Login${uuidv4()}`,
-    password: `Ps!{uuidv4()}`
+    password: `Ps!${uuidv4()}`
   }
 }
 
@@ -20,17 +20,14 @@ async function createUser(username, password) {
 }
 
 async function generateToken(username, password) {
-  const response = await fetch(
-    'https://bookstore.demoqa.com/Account/v1/GenerateToken',
-    {
-      method: 'POST',
-      body: JSON.stringify({
-        userName: username,
-        password: password
-      }),
-      headers: { 'Content-Type': 'application/json' }
-    }
-  )
+  const response = await fetch('https://bookstore.demoqa.com/Account/v1/GenerateToken', {
+    method: 'POST',
+    body: JSON.stringify({
+      userName: username,
+      password: password
+    }),
+    headers: { 'Content-Type': 'application/json' }
+  })
   return response
 }
 
@@ -43,9 +40,7 @@ describe('Bookstore API tests', () => {
     const data = await response.json()
     expect(response.status).toBe(201)
     expect(data.username).toBe(username)
-    expect(data.userID).toMatch(
-      /(^([0-9A-Fa-f]{8}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{12})$)/
-    )
+    expect(data.userID).toMatch(/(^([0-9A-Fa-f]{8}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{12})$)/)
     expect(data.books).toStrictEqual([])
   })
 
