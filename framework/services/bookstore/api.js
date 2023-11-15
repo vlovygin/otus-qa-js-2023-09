@@ -1,5 +1,5 @@
-import api from './client'
-import config from '../config'
+import api from '../client'
+import config from '../../config'
 
 api.defaults.baseURL = config.bookstoreApiBaseUrl
 
@@ -33,7 +33,7 @@ export const account = {
   }
 }
 
-export const bookStore = {
+export const bookstore = {
   getBook: (isbn) => {
     return api.get(`/BookStore/v1/Book`, {
       params: { ISBN: isbn }

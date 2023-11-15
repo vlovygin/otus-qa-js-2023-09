@@ -1,5 +1,6 @@
-import { account, bookStore } from '../../framework/services/bookstore-api'
+import { account, bookstore } from '../../framework/services/bookstore/api'
 import { generateCredentials, randomGuid, randomISBN } from '../../framework/fixtures/bookstore-fake-data'
+import { validateSchema, errorSchema, accountSchema, bookstoreSchema } from '../../framework/services/bookstore/json-schema'
 
 describe('[POST] /Account/v1/Authorized', () => {
   test('Authorized user', async () => {
@@ -11,6 +12,7 @@ describe('[POST] /Account/v1/Authorized', () => {
 
     expect(response.status).toBe(200)
     expect(response.data).toBe(true)
+    expect(validateSchema(accountSchema.authorize, response.data)).toBe(true)
   })
 
   test('Not authorized user', async () => {
@@ -21,6 +23,7 @@ describe('[POST] /Account/v1/Authorized', () => {
 
     expect(response.status).toBe(200)
     expect(response.data).toBe(false)
+    expect(validateSchema(accountSchema.authorize, response.data)).toBe(true)
   })
 
   test('Not exists user', async () => {
@@ -31,6 +34,7 @@ describe('[POST] /Account/v1/Authorized', () => {
     expect(response.status).toBe(404)
     expect(response.data.code).toBe('1207')
     expect(response.data.message).toBe('User not found!')
+    expect(validateSchema(errorSchema, response.data)).toBe(true)
   })
 
   test('Miss required user credentials', async () => {
@@ -39,6 +43,7 @@ describe('[POST] /Account/v1/Authorized', () => {
     expect(response.status).toBe(400)
     expect(response.data.code).toBe('1200')
     expect(response.data.message).toBe('UserName and Password required.')
+    expect(validateSchema(errorSchema, response.data)).toBe(true)
   })
 })
 
@@ -51,6 +56,7 @@ describe('[DELETE] /Account/v1/User/{UUID}', () => {
     const response = await account.deleteUser(userID, token)
 
     expect(response.status).toBe(204)
+    expect(validateSchema(accountSchema.deleteUser, response.data)).toBe(true)
   })
 
   test('Not authorized user', async () => {
@@ -62,6 +68,7 @@ describe('[DELETE] /Account/v1/User/{UUID}', () => {
     expect(response.status).toBe(401)
     expect(response.data.code).toBe('1200')
     expect(response.data.message).toBe('User not authorized!')
+    expect(validateSchema(errorSchema, response.data)).toBe(true)
   })
 
   test('Not exists userID', async () => {
@@ -74,6 +81,7 @@ describe('[DELETE] /Account/v1/User/{UUID}', () => {
     expect(response.status).toBe(200)
     expect(response.data.code).toBe('1207')
     expect(response.data.message).toBe('User Id not correct!')
+    expect(validateSchema(errorSchema, response.data)).toBe(true)
   })
 })
 
@@ -89,6 +97,7 @@ describe('[GET] /Account/v1/User/{UUID}', () => {
     expect(response.data.userId).toBe(userID)
     expect(response.data.username).toBe(credentials.userName)
     expect(response.data.books).toStrictEqual([])
+    expect(validateSchema(accountSchema.getUser, response.data)).toBe(true)
   })
 
   test('Not authorized user', async () => {
@@ -100,6 +109,7 @@ describe('[GET] /Account/v1/User/{UUID}', () => {
     expect(response.status).toBe(401)
     expect(response.data.code).toBe('1200')
     expect(response.data.message).toBe('User not authorized!')
+    expect(validateSchema(errorSchema, response.data)).toBe(true)
   })
 
   test('Not exists userID', async () => {
@@ -112,24 +122,27 @@ describe('[GET] /Account/v1/User/{UUID}', () => {
     expect(response.status).toBe(401)
     expect(response.data.code).toBe('1207')
     expect(response.data.message).toBe('User not found!')
+    expect(validateSchema(errorSchema, response.data)).toBe(true)
   })
 })
 
 describe('[GET] /BookStore/v1/Book', () => {
   test('Get book info', async () => {
-    const book = (await bookStore.getBooks()).data.books[0]
-    const response = await bookStore.getBook(book.isbn)
+    const book = (await bookstore.getBooks()).data.books[0]
+    const response = await bookstore.getBook(book.isbn)
 
     expect(response.status).toBe(200)
     expect(response.data).toStrictEqual(book)
+    expect(validateSchema(bookstoreSchema.getBook, response.data)).toBe(true)
   })
 
   test.each(['', randomISBN()])('Get info not exists book', async (isbn) => {
-    const response = await bookStore.getBook(isbn)
+    const response = await bookstore.getBook(isbn)
 
     expect(response.status).toBe(400)
     expect(response.data.code).toBe('1205')
     expect(response.data.message).toBe('ISBN supplied is not available in Books Collection!')
+    expect(validateSchema(errorSchema, response.data)).toBe(true)
   })
 })
 
@@ -138,7 +151,7 @@ describe('[POST] /BookStore/v1/Books', () => {
 
   beforeAll(async () => {
     // get bookstore books info
-    bookstoreBooks = (await bookStore.getBooks()).data
+    bookstoreBooks = (await bookstore.getBooks()).data
   })
 
   beforeEach(async () => {
@@ -154,10 +167,11 @@ describe('[POST] /BookStore/v1/Books', () => {
       userId: userId,
       collectionOfIsbns: collectionOfIsbns
     }
-    const response = await bookStore.addBooks(payload, token)
+    const response = await bookstore.addBooks(payload, token)
 
     expect(response.status).toBe(201)
     expect(response.data.books).toStrictEqual(collectionOfIsbns)
+    expect(validateSchema(bookstoreSchema.addBooks, response.data)).toBe(true)
   })
 
   test('Add already exists books', async () => {
@@ -166,13 +180,14 @@ describe('[POST] /BookStore/v1/Books', () => {
       userId: userId,
       collectionOfIsbns: collectionOfIsbns
     }
-    await bookStore.addBooks(payload, token)
+    await bookstore.addBooks(payload, token)
 
-    const response = await bookStore.addBooks(payload, token)
+    const response = await bookstore.addBooks(payload, token)
 
     expect(response.status).toBe(400)
     expect(response.data.code).toBe('1210')
     expect(response.data.message).toBe("ISBN already present in the User's Collection!")
+    expect(validateSchema(errorSchema, response.data)).toBe(true)
   })
 
   test('Add not exists books', async () => {
@@ -181,11 +196,12 @@ describe('[POST] /BookStore/v1/Books', () => {
       userId: userId,
       collectionOfIsbns: collectionOfIsbns
     }
-    const response = await bookStore.addBooks(payload, token)
+    const response = await bookstore.addBooks(payload, token)
 
     expect(response.status).toBe(400)
     expect(response.data.code).toBe('1205')
     expect(response.data.message).toBe('ISBN supplied is not available in Books Collection!')
+    expect(validateSchema(errorSchema, response.data)).toBe(true)
   })
 
   test('Not exists userID', async () => {
@@ -194,11 +210,12 @@ describe('[POST] /BookStore/v1/Books', () => {
       userId: randomGuid(),
       collectionOfIsbns: collectionOfIsbns
     }
-    const response = await bookStore.addBooks(payload, token)
+    const response = await bookstore.addBooks(payload, token)
 
     expect(response.status).toBe(401)
     expect(response.data.code).toBe('1207')
     expect(response.data.message).toBe('User Id not correct!')
+    expect(validateSchema(errorSchema, response.data)).toBe(true)
   })
 
   test('Not authorized user', async () => {
@@ -207,11 +224,12 @@ describe('[POST] /BookStore/v1/Books', () => {
       userId: userId,
       collectionOfIsbns: collectionOfIsbns
     }
-    const response = await bookStore.addBooks(payload, '')
+    const response = await bookstore.addBooks(payload, '')
 
     expect(response.status).toBe(401)
     expect(response.data.code).toBe('1200')
     expect(response.data.message).toBe('User not authorized!')
+    expect(validateSchema(errorSchema, response.data)).toBe(true)
   })
 })
 
@@ -220,7 +238,7 @@ describe('[DELETE] /BookStore/v1/Book', () => {
 
   beforeAll(async () => {
     // get bookstore books info
-    bookstoreBooks = (await bookStore.getBooks()).data
+    bookstoreBooks = (await bookstore.getBooks()).data
   })
 
   beforeEach(async () => {
@@ -232,15 +250,16 @@ describe('[DELETE] /BookStore/v1/Book', () => {
 
   test('Delete book', async () => {
     const book = bookstoreBooks.books[0]
-    await bookStore.addBooks({ userId: userId, collectionOfIsbns: [{ isbn: book.isbn }] }, token)
+    await bookstore.addBooks({ userId: userId, collectionOfIsbns: [{ isbn: book.isbn }] }, token)
 
     const payload = {
       isbn: book.isbn,
       userId: userId
     }
-    const response = await bookStore.deleteBook(payload, token)
+    const response = await bookstore.deleteBook(payload, token)
 
     expect(response.status).toBe(204)
+    expect(validateSchema(bookstoreSchema.deleteBook, response.data)).toBe(true)
   })
 
   test('Delete book not exists in coolection', async () => {
@@ -250,11 +269,12 @@ describe('[DELETE] /BookStore/v1/Book', () => {
       isbn: book.isbn,
       userId: userId
     }
-    const response = await bookStore.deleteBook(payload, token)
+    const response = await bookstore.deleteBook(payload, token)
 
     expect(response.status).toBe(400)
     expect(response.data.code).toBe('1206')
     expect(response.data.message).toBe("ISBN supplied is not available in User's Collection!")
+    expect(validateSchema(errorSchema, response.data)).toBe(true)
   })
 
   test('Not exists userID', async () => {
@@ -264,11 +284,12 @@ describe('[DELETE] /BookStore/v1/Book', () => {
       isbn: book.isbn,
       userId: randomGuid()
     }
-    const response = await bookStore.deleteBook(payload, token)
+    const response = await bookstore.deleteBook(payload, token)
 
     expect(response.status).toBe(401)
     expect(response.data.code).toBe('1207')
     expect(response.data.message).toBe('User Id not correct!')
+    expect(validateSchema(errorSchema, response.data)).toBe(true)
   })
 
   test('User not authorized', async () => {
@@ -278,11 +299,12 @@ describe('[DELETE] /BookStore/v1/Book', () => {
       isbn: book.isbn,
       userId: userId
     }
-    const response = await bookStore.deleteBook(payload, null)
+    const response = await bookstore.deleteBook(payload, null)
 
     expect(response.status).toBe(401)
     expect(response.data.code).toBe('1200')
     expect(response.data.message).toBe('User not authorized!')
+    expect(validateSchema(errorSchema, response.data)).toBe(true)
   })
 })
 
@@ -291,7 +313,7 @@ describe('[PUT] /BookStore/v1/Book', () => {
 
   beforeAll(async () => {
     // get bookstore books info
-    bookstoreBooks = (await bookStore.getBooks()).data
+    bookstoreBooks = (await bookstore.getBooks()).data
   })
 
   beforeEach(async () => {
@@ -304,94 +326,100 @@ describe('[PUT] /BookStore/v1/Book', () => {
   test('Update book', async () => {
     const book = bookstoreBooks.books[0]
     const newBook = bookstoreBooks.books[1]
-    await bookStore.addBooks({ userId: userId, collectionOfIsbns: [{ isbn: book.isbn }] }, token)
+    await bookstore.addBooks({ userId: userId, collectionOfIsbns: [{ isbn: book.isbn }] }, token)
 
     const payload = {
       isbn: newBook.isbn,
       userId: userId
     }
-    const response = await bookStore.updateBook(book.isbn, payload, token)
+    const response = await bookstore.updateBook(book.isbn, payload, token)
 
     expect(response.status).toBe(200)
     expect(response.data.userId).toBe(userId)
     expect(response.data.books[0]).toStrictEqual(newBook)
+    expect(validateSchema(bookstoreSchema.updateBook, response.data)).toBe(true)
   })
 
   test('Update book to self book', async () => {
     const book = bookstoreBooks.books[0]
-    await bookStore.addBooks({ userId: userId, collectionOfIsbns: [{ isbn: book.isbn }] }, token)
+    await bookstore.addBooks({ userId: userId, collectionOfIsbns: [{ isbn: book.isbn }] }, token)
 
     const payload = {
       isbn: book.isbn,
       userId: userId
     }
-    const response = await bookStore.updateBook(book.isbn, payload, token)
+    const response = await bookstore.updateBook(book.isbn, payload, token)
 
     expect(response.status).toBe(400)
     expect(response.data.code).toBe('1206')
     expect(response.data.message).toBe("ISBN supplied is not available in User's Collection!")
+    expect(validateSchema(errorSchema, response.data)).toBe(true)
   })
 
   test('Update book to not exists in user collection', async () => {
     const book = bookstoreBooks.books[0]
     const newBook = bookstoreBooks.books[1]
-    await bookStore.addBooks({ userId: userId, collectionOfIsbns: [{ isbn: book.isbn }] }, token)
+    await bookstore.addBooks({ userId: userId, collectionOfIsbns: [{ isbn: book.isbn }] }, token)
 
     const payload = {
       isbn: newBook.isbn,
       userId: userId
     }
-    const response = await bookStore.updateBook(randomISBN(), payload, token)
+    const response = await bookstore.updateBook(randomISBN(), payload, token)
 
     expect(response.status).toBe(400)
     expect(response.data.code).toBe('1206')
     expect(response.data.message).toBe("ISBN supplied is not available in User's Collection!")
+    expect(validateSchema(errorSchema, response.data)).toBe(true)
   })
 
   test('Update book to not exists in books collection', async () => {
     const book = bookstoreBooks.books[0]
-    await bookStore.addBooks({ userId: userId, collectionOfIsbns: [{ isbn: book.isbn }] }, token)
+    await bookstore.addBooks({ userId: userId, collectionOfIsbns: [{ isbn: book.isbn }] }, token)
 
     const payload = {
       isbn: randomISBN(),
       userId: userId
     }
-    const response = await bookStore.updateBook(book.isbn, payload, token)
+    const response = await bookstore.updateBook(book.isbn, payload, token)
 
     expect(response.status).toBe(400)
     expect(response.data.code).toBe('1205')
     expect(response.data.message).toBe('ISBN supplied is not available in Books Collection!')
+    expect(validateSchema(errorSchema, response.data)).toBe(true)
   })
 
   test('Not exists userID', async () => {
     const book = bookstoreBooks.books[0]
     const newBook = bookstoreBooks.books[1]
-    await bookStore.addBooks({ userId: userId, collectionOfIsbns: [{ isbn: book.isbn }] }, token)
+    await bookstore.addBooks({ userId: userId, collectionOfIsbns: [{ isbn: book.isbn }] }, token)
 
     const payload = {
       isbn: newBook.isbn,
       userId: randomGuid()
     }
-    const response = await bookStore.updateBook(book.isbn, payload, token)
+    const response = await bookstore.updateBook(book.isbn, payload, token)
 
     expect(response.status).toBe(401)
     expect(response.data.code).toBe('1207')
     expect(response.data.message).toBe('User Id not correct!')
+    expect(validateSchema(errorSchema, response.data)).toBe(true)
   })
 
   test('User not authorized', async () => {
     const book = bookstoreBooks.books[0]
     const newBook = bookstoreBooks.books[1]
-    await bookStore.addBooks({ userId: userId, collectionOfIsbns: [{ isbn: book.isbn }] }, token)
+    await bookstore.addBooks({ userId: userId, collectionOfIsbns: [{ isbn: book.isbn }] }, token)
 
     const payload = {
       isbn: newBook.isbn,
       userId: userId
     }
-    const response = await bookStore.updateBook(book.isbn, payload, null)
+    const response = await bookstore.updateBook(book.isbn, payload, null)
 
     expect(response.status).toBe(401)
     expect(response.data.code).toBe('1200')
     expect(response.data.message).toBe('User not authorized!')
+    expect(validateSchema(errorSchema, response.data)).toBe(true)
   })
 })
