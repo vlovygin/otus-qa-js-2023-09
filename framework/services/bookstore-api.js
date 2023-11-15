@@ -32,3 +32,40 @@ export const account = {
     })
   }
 }
+
+export const bookStore = {
+  getBook: (isbn) => {
+    return api.get(`/BookStore/v1/Book`, {
+      params: { ISBN: isbn }
+    })
+  },
+
+  getBooks: () => {
+    return api.get('/BookStore/v1/Books')
+  },
+
+  addBooks: (payload, token) => {
+    return api.post('/BookStore/v1/Books', payload, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+  },
+
+  updateBook: (isbn, payload, token) => {
+    return api.put(`/BookStore/v1/Books/${isbn}`, payload, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+  },
+
+  deleteBook: (payload, token) => {
+    return api.delete('/BookStore/v1/Book', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      data: payload
+    })
+  }
+}

@@ -9,6 +9,7 @@ api.interceptors.request.use((request) => {
   const requestData = {
     method: request.method.toUpperCase(),
     url: request.baseURL + request.url,
+    params: request.params,
     headers: request.headers,
     body: request.data
   }
