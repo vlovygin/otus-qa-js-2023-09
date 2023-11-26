@@ -1,6 +1,7 @@
-import api from '../client'
+import apiClient from '../client'
 import config from '../../config'
 
+const api = apiClient()
 api.defaults.baseURL = config.bookstoreApiBaseUrl
 
 export const account = {
