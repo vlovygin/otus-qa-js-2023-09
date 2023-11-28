@@ -1,0 +1,63 @@
+name: OTUS CI homework
+run-name: ${{ github.actor }} is start a runner.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  api-autotests:
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Installing dependencies
+        run: npm ci
+
+      - name: Run API tests
+        run: npm run test tests/api/
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: report
+          if-no-files-found: error
+          path: ./html-report
+
+      - name: Setup Pages
+        if: always()
+        uses: actions/configure-pages@v3
+      - name: Upload GitHub Pages artifact
+        if: always()
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: './html-report'
+      - name: Deploy to GitHub Pages
+        if: always()
+        id: deployment
+        uses: actions/deploy-pages@v2
+
+      - name: Send telegram message
+        if: always()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_NOTIFICATION_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            ${{ github.actor }} created commit:
+            Commit message: ${{ github.event.commits[0].message }}
+
+            Repository: ${{ github.repository }}
+
+            See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
